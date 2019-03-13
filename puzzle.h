@@ -1,19 +1,10 @@
-
 #ifndef SLIDING_TILE
 #define SLIDING_TILE
 
 #include <iostream>
-#include <iomanip>				// for setw()
-using namespace std;
-
-#include <string.h>				// for strcpy()
-#include <conio.h>				// for getch()
-
-#include <windows.h>			// for COLOR!
+#include <iomanip>
 #include <windows.h>
-
-#define NUM_ROWS		7		// should not be changed for this solution
-#define NUM_COLS		7		// should not be changed for this soultion
+using namespace std;
 
 //class sliding puzzle
 class puzzle {
@@ -25,12 +16,14 @@ private:
 	int move;
 	int winCount;
 	bool solved;
-	public:
-		void InitializeBoard(int[NUM_ROWS][NUM_COLS]);
-		void PrintBoard(int[NUM_ROWS][NUM_COLS], HANDLE);
-		bool slideTile(int[NUM_ROWS][NUM_COLS], int);
-		void scrambleBoard(int[NUM_ROWS][NUM_COLS]);				// depends upon slideTile()
-		bool isBoardSolved(int[NUM_ROWS][NUM_COLS]);		// indicates if the board is in the SOLVED state
+public:
+	puzzle();
+	// puzzle() is for variable declarations
+	void InitializeBoard(int**, int, int);		// initializes the board
+	void PrintBoard(int**, int, int, HANDLE);	// prints the board
+	bool slideTile(int**, int, int, int);		// slides the tile
+	void scrambleBoard(int**, int, int);				// depends upon slideTile()
+	bool isBoardSolved(int**, int, int);		// indicates if the board is in the SOLVED state
 };
 
 #endif
