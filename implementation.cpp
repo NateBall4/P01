@@ -1,12 +1,6 @@
-#include <iostream>
-#include <iomanip>	
-#include <windows.h>
 #include "puzzle.h"
 
 using namespace std;
-
-#define NUM_ROWS		7		// should not be changed for this solution
-#define NUM_COLS		7		// should not be changed for this soultion
 
 #define PIVOT_SYMBOL	'*'		// used to show the pivot location when drawing the board
 
@@ -16,8 +10,6 @@ using namespace std;
 #define SLIDE_LEFT		4		// pass to slideTile() to trigger LEFT movement
 #define SLIDE_RIGHT		6		// pass to slideTile() to trigger RIGHT movement
 
-#define UNSET			-1		// used to arbitrarily indicate an undetermined state in a constuct
-
 #define SCRAMBLE		1000000 // scambles the board into oblivion
 
 #define COLOR_DEFAULT	7 // default windows color
@@ -25,15 +17,23 @@ using namespace std;
 #define COLOR_GREEN		10 // windows api green
 
 
+puzzle::puzzle() {
+	 counter = 0;
+	 temp = 0;
+	 emptyRow = 0;
+	 emptyCol = 0;
+	 move = 0;
+	 winCount = 0;
+	 solved= 0;
+}
 
-
-void puzzle::InitializeBoard(int theBoard[NUM_ROWS][NUM_COLS]) {
+void puzzle::InitializeBoard(int** theBoard, int height, int width) {
 	// YOUR IMPLEMENTATION GOES HERE...
 	int counter = 1;
 
-	for (int i = 0; i < NUM_ROWS; i++) {
-		for (int j = 0; j < NUM_COLS; j++) {
-			if (counter == NUM_ROWS * NUM_COLS) {
+	for (int i = 0; i < height; i++) {
+		for (int j = 0; j < width; j++) {
+			if (counter == height * width) {
 				theBoard[i][j] = PIVOT_SYMBOL; // at the last space print the pivot symbol
 			}
 			else {
@@ -43,13 +43,13 @@ void puzzle::InitializeBoard(int theBoard[NUM_ROWS][NUM_COLS]) {
 	}
 }
 
-void puzzle::PrintBoard(int theBoard[NUM_ROWS][NUM_COLS], HANDLE CurrentConsole) {
+void puzzle::PrintBoard(int** theBoard, int height, int width, HANDLE CurrentConsole) {
 	// YOUR IMPLEMENTATION GOES HERE...
 	int counter = 1; // used to teast is the pieces are in the right space
 
-	for (int i = 0; i < NUM_ROWS; i++) {
+	for (int i = 0; i < height; i++) {
 		cout << endl;
-		for (int j = 0; j < NUM_COLS; j++) {
+		for (int j = 0; j < width; j++) {
 			if (theBoard[i][j] == counter) {
 				SetConsoleTextAttribute(CurrentConsole, COLOR_GREEN); // if number is in the right space make it green
 			}
@@ -72,15 +72,15 @@ void puzzle::PrintBoard(int theBoard[NUM_ROWS][NUM_COLS], HANDLE CurrentConsole)
 	SetConsoleTextAttribute(CurrentConsole, COLOR_DEFAULT);
 }
 
-bool puzzle::slideTile(int theBoard[NUM_ROWS][NUM_COLS], int slideDirection) {
+bool puzzle::slideTile(int** theBoard,int height, int width, int slideDirection) {
 	// YOUR IMPLEMENTATION GOES HERE...
 	int temp = 0;
 	int emptyRow = 0;
 	int emptyCol = 0;
 
 	//find the position of the slider
-	for (int i = 0; i < NUM_ROWS; i++) {
-		for (int j = 0; j < NUM_COLS; j++) {
+	for (int i = 0; i < height; i++) {
+		for (int j = 0; j < width; j++) {
 			if (theBoard[i][j] == PIVOT_SYMBOL) {
 				emptyRow = i;
 				emptyCol = j;
@@ -104,7 +104,7 @@ bool puzzle::slideTile(int theBoard[NUM_ROWS][NUM_COLS], int slideDirection) {
 	}
 
 	case SLIDE_DOWN: { // function for moving down
-		if (emptyRow + 1 >= NUM_ROWS) {// if move down is OOB flag as a bad move
+		if (emptyRow + 1 >= height) {// if move down is OOB flag as a bad move
 			slideDirection = false;
 		}
 		if (slideDirection != false) {// if move is good make it
@@ -118,7 +118,7 @@ bool puzzle::slideTile(int theBoard[NUM_ROWS][NUM_COLS], int slideDirection) {
 	}
 
 	case SLIDE_RIGHT: { // function for moving right
-		if (emptyCol + 1 >= NUM_COLS) {// if move right is OOB flag as a bad move
+		if (emptyCol + 1 >= width) {// if move right is OOB flag as a bad move
 			slideDirection = false;
 		}
 		if (slideDirection != false) {// if move is good make it
@@ -148,7 +148,7 @@ bool puzzle::slideTile(int theBoard[NUM_ROWS][NUM_COLS], int slideDirection) {
 	return false;
 }
 
-void puzzle::scrambleBoard(int theBoard[NUM_ROWS][NUM_COLS]) {
+void puzzle::scrambleBoard(int** theBoard, int height, int width) {
 	// YOUR IMPLEMENTATION GOES HERE...
 	srand((unsigned int)time(NULL));
 	int move;
@@ -156,24 +156,24 @@ void puzzle::scrambleBoard(int theBoard[NUM_ROWS][NUM_COLS]) {
 	for (int i = 0; i < SCRAMBLE; i++) //Series of random moves
 	{
 		move = rand() % 8 + 1;
-		slideTile(theBoard, move);
+		slideTile(theBoard, height, width, move);
 	}
 }
 
-bool puzzle::isBoardSolved(int amISolved[NUM_ROWS][NUM_COLS]) {
+bool puzzle::isBoardSolved(int** amISolved, int height,int width) {
 	// YOUR IMPLEMENTATION GOES HERE...
 	bool solved = false;
 	int counter = 1;
 	int winCount = 0;
 
-	for (int i = 0; i < NUM_ROWS; i++) {
-		for (int j = 0; j < NUM_COLS; j++) {
+	for (int i = 0; i < height; i++) {
+		for (int j = 0; j < width; j++) {
 
 			if (amISolved[i][j] == counter) { // if the piece is in the right spot solved = true wincounter increases
 				solved = true;
 				winCount++; // used to measure if the player has won (E.X. a 3 x 3 board has a win count of 8 since there are 8 pieces)
 			}
-			else if (counter == (NUM_ROWS * NUM_COLS) && winCount == ((NUM_ROWS * NUM_COLS) - 1)) { // if all pieces are in the right spot and the wincount is complete you win
+			else if (counter == (height * width) && winCount == ((height * width) - 1)) { // if all pieces are in the right spot and the wincount is complete you win
 				solved = true;
 			}
 			else { // else the board is not solved
